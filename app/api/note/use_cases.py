@@ -45,24 +45,30 @@ class ReadAllNote:
         user_id: int,
         page_params: PaginationParams,
         include_deleted: bool,
+        filter_user: bool
     ) -> (list[dict], PaginationMetaResponse):
         with self.session as session:
-            total_item = session.execute(
+            total_item = (
                 select(func.count())
                 .select_from(Note)
-                .where((Note.created_by == user_id) &
-                    (Note.deleted_at == None))
             )
-            total_item = total_item.scalar()
 
             query = (
                 select(Note)
                 .offset((page_params.page - 1) * page_params.item_per_page)
-                .where(Note.created_by == user_id)
                 .limit(page_params.item_per_page)
             )
+
+            if filter_user:
+                total_item = total_item.filter(Note.created_by == user_id)
+                query = query.filter(Note.created_by == user_id)
+
             if not include_deleted:
+                total_item = total_item.filter(Note.deleted_at == None)
                 query = query.filter(Note.deleted_at == None)
+
+            total_item = session.execute(total_item)
+            total_item = total_item.scalar()
 
             paginated_query = session.execute(query)
             paginated_query = paginated_query.scalars().all()

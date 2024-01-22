@@ -12,6 +12,7 @@ class CreateNoteResponse(BaseResponse):
 # GET Pagination /notes
 class ReadAllNoteParamRequest(PaginationParams):
     include_deleted: bool = False
+    filter_user: bool = True
 
 class ReadAllNoteResponse(BaseResponse):
     data: dict | None

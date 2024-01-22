@@ -68,7 +68,8 @@ def read_all(
         resp_data = read_all_note.execute(
             user_id=token_user_id,
             page_params=query,
-            include_deleted=query.include_deleted
+            include_deleted=query.include_deleted,
+            filter_user=query.filter_user
         )
         return jsonify(ReadAllNoteResponse(
             status="success",
